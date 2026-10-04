@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مَلاذ</title>
+    <link rel="stylesheet" href="Malaz.css">
+</head>
+<body>
+
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <div id="intro-screen" class="intro-screen glass-panel">
+        <h1 class="logo">مَلاذ</h1>
+        <p class="subtitle">ملاذ لكل من ارهقته متاعب الدنيا</p>
+        <button id="enter-btn" class="main-btn" onclick="enterApp()">دخول</button>
+    </div>
+
+    <div id="main-content" class="main-content hidden">
+        <header class="site-header">
+            <h2 class="header-logo">مَلاذ</h2>
+        </header>
+
+        <section class="daily-ayah-section">
+            <span id="content-badge" class="badge">آية اليوم</span>
+            <div class="card glass-panel interactive-card">
+                <p id="ayah-text" class="ayah"></p>
+                <span id="surah-text" class="surah"></span>
+            </div>
+            <button class="action-btn" onclick="getRandomAyah()">آية أخرى ↻</button>
+        </section>
+
+        <section class="sections-container">
+            <div class="tabs-grid">
+                <button class="tab-btn active" onclick="switchSection('quran', event)">القرآن الكريم</button>
+                <button class="tab-btn" onclick="switchSection('hadith', event)">أحاديث نبوية</button>
+                <button class="tab-btn" onclick="switchSection('adhkar', event)">أذكار المسلم</button>
+                <button class="tab-btn" onclick="switchSection('sebha', event)">السبحة الإلكترونية</button>
+            </div>
+
+            <!-- قسم القرآن الكريم -->
+            <div id="quran-section" class="content-box">
+                <div class="search-wrapper">
+                    <input type="text" id="surah-search" placeholder="ابحث عن اسم السورة بدون تشكيل (مثال: البقرة، يوسف، يس)..." oninput="filterSurahs()">
+                </div>
+
+                <div id="surah-details" class="card glass-panel surah-view hidden">
+                    <button class="back-btn" onclick="closeSurahView()">← رجوع لقائمة السور</button>
+                    <h3 id="current-surah-title" class="section-title naskh-font"></h3>
+                    <span id="current-surah-info" class="source-text"></span>
+
+                    <div class="view-toggle">
+                        <button id="btn-show-reading" class="sub-tab-btn active" onclick="toggleSurahTab('reading')">قراءة السورة</button>
+                        <button id="btn-show-tafsir" class="sub-tab-btn" onclick="toggleSurahTab('tafsir')">التفسير الميسر</button>
+                    </div>
+
+                    <div id="current-surah-text" class="quran-reading-box custom-scroll"></div>
+                    <div id="current-surah-tafsir" class="quran-tafsir-box custom-scroll hidden"></div>
+
+                    <div class="reciter-section">
+                        <span class="reciter-label">اختر القارئ للاستماع:</span>
+                        <div class="select-wrapper">
+                            <select id="reciter-select" class="reciter-dropdown" onchange="changeReciter()">
+                                <option value="minshawi">محمد صديق المنشاوي</option>
+                                <option value="abdulbasit">عبد الباسط عبد الصمد</option>
+                                <option value="muaiqly" selected>ماهر المعيقلي</option>
+                                <option value="dossari">ياسر الدوسري</option>
+                                <option value="afasy">مشاري راشد العفاسي</option>
+                            </select>
+                        </div>
+                        
+                        <div class="custom-audio-player glass-panel">
+                            <audio id="quran-audio" preload="metadata"></audio>
+                            <button id="play-pause-btn" class="player-btn" onclick="togglePlayPause()">▶</button>
+                            <span id="current-time" class="time-text">00:00</span>
+                            <input type="range" id="seek-bar" class="seek-slider" value="0" min="0" step="1" oninput="seekAudio()">
+                            <span id="duration-time" class="time-text">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="surahs-list" class="surahs-grid custom-scroll"></div>
+            </div>
+
+            <!-- قسم الأحاديث النبوية -->
+            <div id="hadith-section" class="content-box hidden">
+                <div class="search-wrapper">
+                    <input type="text" id="hadith-search" placeholder="ابحث في متن الحديث، المعنى، أو الراوي..." oninput="filterHadiths()">
+                </div>
+                <div id="hadiths-list" class="hadiths-container custom-scroll"></div>
+            </div>
+
+            <!-- قسم الأذكار -->
+            <div id="adhkar-section" class="content-box hidden">
+                <div class="adhkar-categories-grid">
+                    <button class="adhkar-cat-btn active" onclick="switchAdhkarCategory('morning', event)">أذكار الصباح</button>
+                    <button class="adhkar-cat-btn" onclick="switchAdhkarCategory('evening', event)">أذكار المساء</button>
+                    <button class="adhkar-cat-btn" onclick="switchAdhkarCategory('sleep', event)">أذكار النوم</button>
+                    <button class="adhkar-cat-btn" onclick="switchAdhkarCategory('prayer', event)">أذكار بعد الصلاة</button>
+                </div>
+
+                <div id="adhkar-list" class="adhkar-items-container custom-scroll"></div>
+            </div>
+
+            <!-- قسم السبحة الإلكترونية الذكية التلقائية -->
+            <div id="sebha-section" class="content-box hidden">
+                <div class="card glass-panel sebha-card">
+                    <span class="sub-badge">السبحة المتتابعة</span>
+                    
+                    <div class="sebha-display-box">
+                        <span id="sebha-current-text" class="sebha-current-phrase">سُبْحَانَ اللَّهِ</span>
+                        <span id="sebha-target-info" class="sebha-target-badge">الهدف: 33 مرة</span>
+                    </div>
+
+                    <div class="sebha-circle-container">
+                        <button class="sebha-btn" onclick="incrementSebha()">
+                            <span id="sebha-count" class="sebha-number">0</span>
+                            <span class="sebha-hint">انقر للتسبيح</span>
+                        </button>
+                    </div>
+
+                    <div class="sebha-footer">
+                        <span class="sebha-total">إجمالي التسبيحات الكلي: <strong id="sebha-total-count">0</strong></span>
+                        <div class="sebha-controls">
+                            <button class="sebha-action-btn" onclick="skipDhikr()">الذكر التالي ⏭</button>
+                            <button class="sebha-reset-btn" onclick="resetSebha()">تصفير ↺</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="Malaz.js"></script>
+</body>
+</html>
